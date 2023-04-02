@@ -1,0 +1,3 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Secure Proxy"
+OUTPUT_DIRECTORY       = doc/doxygen
