@@ -11,8 +11,12 @@
 #include "include/proxy.h"
 #include "include/net.h"
 #include "include/log.h"
+#include "include/pool.h"
 
 #define PATH_SIZE 256
+
+#define NUM_THREADS 4
+
 
 
 
@@ -41,9 +45,12 @@ int port;
 // Paths to forbidden sites and log files
 char forbidden_sites_path[PATH_SIZE], log_path[PATH_SIZE];
 
+tpool_t *tm = NULL;
+
 int main(int argc, char *argv[])
 {
-
+    pthread_mutex_init(&file_lock,NULL);//init the file lock
+                                        //(defined in log.h)
 
     if (argc < 4) {
         fprintf(stderr, "Usage: %s <port> <forbidden_sites_path> <log_path>", argv[0]);
@@ -59,7 +66,7 @@ int main(int argc, char *argv[])
     forbiddenSites = calloc(1, sizeof(struct forbidden_sites));
     int parse_status = parse_forbidden_sites(forbidden_sites_path, forbiddenSites);
     if (parse_status != 0) {
-        fprintf(stderr, "Error parsing forbidden forbiddenSites file\n");
+        fprintf(stderr, "Error parsing forbidden forbidden Sites file\n");
         exit(EXIT_FAILURE);
     } else {
         fprintf(stderr, "Parsed %d forbidden forbiddenSites\n", forbiddenSites->size);
@@ -112,6 +119,9 @@ int main(int argc, char *argv[])
     // Set up signal handler for SIGQUIT
     signal(SIGTERM, signal_handler);
 
+    //initialize thread pool
+    tm = tpool_create(NUM_THREADS);
+
     // Accept incoming connections
     accept_connections();
 
@@ -138,10 +148,11 @@ void accept_connections()
         config->log_path = log_path;
 
         fprintf(stderr,"New connection accepted on socket: %d from %s:%d\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-        pthread_t thread_id;
-        if (pthread_create(&thread_id, NULL, handle_request, config) != 0)
+        //pthread_t thread_id;
+        int check;
+        if ((check = tpool_add_work(tm,handle_request,config) == -1)/*pthread_create(&thread_id, NULL, handle_request, config) != 0*/)
         {
-            perror("pthread_create failed");
+            perror("Failed to add work");
             exit(EXIT_FAILURE);
         }
     }
@@ -155,6 +166,7 @@ void signal_handler(int sig)
         fprintf(stderr,"Sad to see you leave; BYE :(\n");
         bzero(&address, sizeof(address));
         close(server_fd);
+        if(tm != NULL) tpool_destroy(tm);
         exit(0);
     } else if (sig == SIGINT)
     {

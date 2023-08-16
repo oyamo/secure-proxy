@@ -6,9 +6,9 @@
 #include "../include/log.h"
 
 
-
 void log_f(char *format, ...)
 {
+    
     // Get current time
     time_t current_time;
     time(&current_time);
@@ -72,6 +72,9 @@ void log_f(char *format, ...)
 
 void flog_f(char *log_file, char *format, ...)
 {
+
+    pthread_mutex_lock(&file_lock);//lock file writing by other threads
+
     // Open log file for appending
     FILE *fp = fopen(log_file, "a");
     if (fp == NULL)
@@ -135,4 +138,5 @@ void flog_f(char *log_file, char *format, ...)
     // Print new line
     fprintf(fp, "\n");
     fclose(fp);
+    pthread_mutex_unlock(&file_lock);//unlock file writing
 }
