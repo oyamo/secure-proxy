@@ -176,12 +176,12 @@ int tpool_add_work(tpool_t *tm, thread_func_t func, void *arg)
     tpool_work_t *work;
 
     if (tm == NULL)
-        return 1;
+        return -1;
 
     work = tpool_work_create(func, arg); // create work object
 
     if (work == NULL)
-        return 1;
+        return -1;
 
     pthread_mutex_lock(&(tm->work_mutex)); // lock
 

@@ -50,6 +50,7 @@ tpool_t *tm = NULL;
 int main(int argc, char *argv[])
 {
     pthread_mutex_init(&file_lock,NULL);//init the file lock
+                                        //(defined in log.h)
 
     if (argc < 4) {
         fprintf(stderr, "Usage: %s <port> <forbidden_sites_path> <log_path>", argv[0]);
@@ -149,7 +150,7 @@ void accept_connections()
         fprintf(stderr,"New connection accepted on socket: %d from %s:%d\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
         //pthread_t thread_id;
         int check;
-        if ((check = tpool_add_work(tm,handle_request,config) == 1)/*pthread_create(&thread_id, NULL, handle_request, config) != 0*/)
+        if ((check = tpool_add_work(tm,handle_request,config) == -1)/*pthread_create(&thread_id, NULL, handle_request, config) != 0*/)
         {
             perror("Failed to add work");
             exit(EXIT_FAILURE);
