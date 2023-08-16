@@ -11,6 +11,12 @@
  */
 void log_f(char *format, ...);
 
+
+/**
+ * mutex for log file
+*/
+pthread_mutex_t file_lock;
+
 /**
  * Log the message and exit
  * @param format

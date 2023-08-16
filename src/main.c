@@ -19,6 +19,7 @@
 
 
 
+
 /**
  * Signal handler for SIGINT
  * @param sig Signal number
@@ -48,7 +49,7 @@ tpool_t *tm = NULL;
 
 int main(int argc, char *argv[])
 {
-
+    pthread_mutex_init(&file_lock,NULL);//init the file lock
 
     if (argc < 4) {
         fprintf(stderr, "Usage: %s <port> <forbidden_sites_path> <log_path>", argv[0]);
