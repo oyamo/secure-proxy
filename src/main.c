@@ -117,7 +117,9 @@ int main(int argc, char *argv[])
     // Set up signal handler for SIGQUIT
     signal(SIGTERM, signal_handler);
 
+    //initialize thread pool
     tm = tpool_create(NUM_THREADS);
+
     // Accept incoming connections
     accept_connections();
 
@@ -145,10 +147,10 @@ void accept_connections()
 
         fprintf(stderr,"New connection accepted on socket: %d from %s:%d\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
         //pthread_t thread_id;
-        
-        if (tpool_add_work(tm,handle_request,config)/*pthread_create(&thread_id, NULL, handle_request, config) != 0*/)
+        int check;
+        if ((check = tpool_add_work(tm,handle_request,config) == 1)/*pthread_create(&thread_id, NULL, handle_request, config) != 0*/)
         {
-            perror("pthread_create failed");
+            perror("Failed to add work");
             exit(EXIT_FAILURE);
         }
     }
