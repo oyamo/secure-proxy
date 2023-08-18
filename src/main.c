@@ -105,19 +105,23 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    fprintf(stderr,"Server is running on port: %d\n", DEFAULT_PORT);
+    fprintf(stderr,"Server is running on port: %d\n", port);
 
     //print pid
     fprintf(stderr,"PID: %d\n", getpid());
 
     // kill -SIGTERM pid
-    fprintf(stderr,"To kill: kill -SIGTERM %d\n", getpid());
+    fprintf(stderr,"To kill: <ctrl+z> \nTo reload: <ctrl+c>\n");
 
     // Set up signal handler for SIGINT
     signal(SIGINT, signal_handler);
 
     // Set up signal handler for SIGQUIT
+
     signal(SIGTERM, signal_handler);
+
+    //handle <ctrl z>
+    signal(20, signal_handler);
 
     //initialize thread pool
     tm = tpool_create(NUM_THREADS);
@@ -181,6 +185,10 @@ void signal_handler(int sig)
 
         forbiddenSites = new_sites;
         fprintf(stderr, "Parsed %d forbidden Sites\n", forbiddenSites->size);
+    }else if(sig == 20/*ctrl+z*/)
+    {
+
+        raise(SIGTERM);
     }
 }
 

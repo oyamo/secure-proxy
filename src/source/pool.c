@@ -161,13 +161,13 @@ void tpool_destroy(tpool_t *tm)
     pthread_cond_broadcast(&(tm->work_cond));
     pthread_mutex_unlock(&(tm->work_mutex));
 
-    tpool_wait(tm);
+    tpool_wait(tm);// wait for all threads to exit
 
     pthread_mutex_destroy(&(tm->work_mutex));
     pthread_cond_destroy(&(tm->working_cond));
     pthread_cond_destroy(&(tm->work_cond));
 
-    free(tm); // wait for all threads
+    free(tm); 
 }
 
 // add work to the queue
