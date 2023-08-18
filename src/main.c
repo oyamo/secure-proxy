@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     fprintf(stderr,"PID: %d\n", getpid());
 
     // kill -SIGTERM pid
-    fprintf(stderr,"To kill: <ctrl+z> \nTo reload: <ctrl+c>\n");
+    fprintf(stderr,"To kill: SIGTERM / <ctrl+z> \nTo reload: SIGINT / <ctrl+c>\n");
 
     // Set up signal handler for SIGINT
     signal(SIGINT, signal_handler);
